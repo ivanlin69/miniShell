@@ -64,8 +64,8 @@ strlen:
 @ Return the pointer to the des string
 strcpy:
     push {r4-r11, lr}
-    ldr r2, [r0]  @ load source string
-    ldr r3, [r1]  @ load destination string
+    mov r2, r0  @ load source string
+    mov r3, r1  @ load destination string
 
     strcpyLoop:
         ldrb r4, [r2]
@@ -77,7 +77,7 @@ strcpy:
         b strcpyLoop
 
     strcpyEnd:
-        mov r0, r3
+        mov r0, r1  @ return pointer to des string
         pop {r4-r11, pc}
 
 @ Simulate C's strcat function
@@ -85,8 +85,8 @@ strcpy:
 @ Return the pointer to the source string
 strcat:
     push {r4-r11, lr}
-    ldr r2, [r0]  @ load source string
-    ldr r3, [r1]  @ load string to append
+    mov r2, r0  @ load source string
+    mov r3, r1  @ load string to append
     bl strlen
     mov r4, r0  @ load length of the source string
     add r2, r4  @ move pointer to the end of the source string
@@ -101,7 +101,7 @@ strcat:
         b strcpyLoop
 
     strcatEnd:
-        mov r0, r2
+        mov r0, r0  @ return pointer to source string
         pop {r4-r11, pc}
 
 
@@ -217,6 +217,7 @@ child:
 
 @ call sys_wait for a parent
 @ wait4(int *stat_addr, int options, struct rusage *ru)
+wait:
     mov r7, #0x72   @ sys_wait(for arm linux kernel, sys_wait4)
     @ wait for any child for any status
     mov r0, #-1
