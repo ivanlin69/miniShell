@@ -101,8 +101,6 @@ strcat:
         b strcatLoop
 
     strcatEnd:
-        ldr r0 =bufferUser
-        bl printf
         mov r0, r0  @ return pointer to source string
         pop {r4-r11, pc}
 
@@ -143,6 +141,7 @@ displayUserInput:
     bl printf
     pop {r4-r11, pc}
 
+
 @ handing commands with fork, child, parent and wait
 executeCommand:
     push {r4-r11, lr}
@@ -154,6 +153,11 @@ executeCommand:
     beq endExecute
     @ else, fork the process
     bl checkPath
+
+    @ test code for checking correct file path
+    ldr r0, =bufferUser
+    bl printf
+
     bl fork
     cmp r0, #0  @ fork returns 0 if a child process, pid a parent process
     beq child   @ if we're in child process, run child
