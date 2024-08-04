@@ -6,6 +6,8 @@ _start:
 
 main:
     bl showPrompt
+    bl readUserInput
+    bl displayUserInput
     b main  @Infinity loop
 
 @ Ask user to prompt with outputing "$ " on the display
@@ -25,7 +27,7 @@ printf:
     mov r2, r0  @ r2 = length of the given string
 
     @ write to stdout
-    mov r0, #1 @ stdout
+    mov r0, #1 @ stdout fd
     mov r1, r1 @ pinter to the string
     mov r2, r2 @ length of the string
     mov r7, #4 @ sys_write
@@ -53,7 +55,34 @@ _strlenLoopEnd:
     pop {pc}
 
 
+readUserInput:
+    push {lr} @ No use of volatile registers
+
+    @ read from stdin
+    mov r0, #0  @ stdin fd
+    ldr r1, =buffer @ pointer to the buffer
+    mov r2, #128    @ maximum load size
+    mov r7, #3  @ sys_read
+    sys #0
+
+    pop {pc}
+
+displayUserInput:
+    push {lr} @ No use of volatile registers
+    ldr r0, =buffer
+    bl printf
+    ldr r0, =newline
+    bl printf
+    pop {pc}
+
 .section .data
 @ Used by showPrompt()
 prompt:
-    .asciz "$ " @Null terminated string
+    .asciz "$ " @ Null terminated string
+
+newline:
+    .asciz "\n" @ for printing a newline
+
+@ Used for reading user input, allocated with 128bytes
+buffer:
+    .space 128
