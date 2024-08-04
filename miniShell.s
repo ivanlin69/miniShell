@@ -156,8 +156,8 @@ executeCommand:
     ldr r0, =bufferFilename
     bl printf
 
-    cmp r0, #-1  @ make sure the parse is done correctly
-    beq endExecute
+    cmp r0, #0  @ make sure the parse is done correctly
+    bne endExecute
     @ else, fork the process
     bl fork
     cmp r0, #0  @ fork returns 0 if a child process, pid a parent process
@@ -166,6 +166,7 @@ executeCommand:
 
     endExecute:
         pop {r4-r11, pc}
+
 
 @ see if user specified a path, otherwise add '/usr/bin/ at the beginning
 checkPath:
@@ -179,6 +180,7 @@ checkPath:
 
     endCheckPath:
         pop {r4-r11, pc}
+
 
 @ add '/usr/bin/ at the beginning of the given string
 addPath:
@@ -199,14 +201,6 @@ addPath:
 
     pop {r4-r11, pc}
 
-@ parse the command to get the arguments for operation
-parseCommand:
-    push {r4-r11, lr}
-
-
-
-    pop {r4-r11, pc}
-
 
 @ call sys_fork for forking
 fork:
@@ -215,13 +209,13 @@ fork:
     svc #0
     pop {r4-r11, pc}
 
+
 @ call sys_execve
 @ int execve(const char *filename, const char *const *argv, const char *const *envp);
-@ TODO::
 child:
     push {r4-r11, lr}
-    ldr r0, =bufferUser
-    mov r1, #0  @ place for argv
+    ldr r0, =bufferFilename
+    mov r1, argv  @ place for argv
     mov r2, #0  @ place for envp(environment pointer), hardcoded 0 for minimal usage
     mov r7, #0xb  @ sys_execve
     svc #0
@@ -229,6 +223,7 @@ child:
     @ only run if execve somehow fails
     mov r7, #1  @ sys_exit
     svc #0
+
 
 @ call sys_wait for a parent
 @ wait4(int *stat_addr, int options, struct rusage *ru)
@@ -243,7 +238,7 @@ wait:
     pop {r4-r11, pc}
 
 
-@TODO: parse the command
+@ parse the command to get the arguments for operation
 @ returns 0 if parsed correctly
 parseCommand:
     push {r4-r11, lr}
@@ -285,6 +280,7 @@ parseCommand:
     parseCommandEnd:
         strb r4, [r1]   @ null terminated arg0
         strb r4, [r2]   @ null terminated arg1
+        mov r0, #0
         pop {r4-r11, pc}
 
 
