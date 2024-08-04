@@ -146,18 +146,19 @@ displayUserInput:
 executeCommand:
     push {r4-r11, lr}
     ldr r0, =bufferUser
+
     @ parse the command for later execution
     bl parseCommand
+
+    bl checkPath
+
+    @ test code for checking correct file path
+    ldr r0, =bufferFilename
+    bl printf
 
     cmp r0, #-1  @ make sure the parse is done correctly
     beq endExecute
     @ else, fork the process
-    bl checkPath
-
-    @ test code for checking correct file path
-    ldr r0, =bufferUser
-    bl printf
-
     bl fork
     cmp r0, #0  @ fork returns 0 if a child process, pid a parent process
     beq child   @ if we're in child process, run child
@@ -169,7 +170,7 @@ executeCommand:
 @ see if user specified a path, otherwise add '/usr/bin/ at the beginning
 checkPath:
     push {r4-r11, lr}
-    ldr r1, =bufferUser @ load string
+    ldr r1, =bufferFilename @ load string
     ldrb r2, [r1]   @ read first byte
     cmp r2, #'/'    @ check if already specified
     beq endCheckPath
@@ -183,18 +184,26 @@ checkPath:
 addPath:
     push {r4-r11, lr}
     @ copy string to another buffer
-    ldr r0, =bufferUser @ load string
+    ldr r0, =bufferFilename @ load string
     ldr r1, =bufferStrcpy  @ for des string
     bl strcpy   @ r0 = des string
     @ copy bin path to user buffer
     ldr r0, =binPath
-    ldr r1, =bufferUser
+    ldr r1, =bufferFilename
     bl strcpy
 
     @ append arguments to bufferUser
-    ldr r0, =bufferUser
+    ldr r0, =bufferFilename
     ldr r1, =bufferStrcpy
     bl strcat
+
+    pop {r4-r11, pc}
+
+@ parse the command to get the arguments for operation
+parseCommand:
+    push {r4-r11, lr}
+
+
 
     pop {r4-r11, pc}
 
@@ -238,9 +247,45 @@ wait:
 @ returns 0 if parsed correctly
 parseCommand:
     push {r4-r11, lr}
-    mov r0, r0 @ load the command
+    ldr r0, =bufferUser
+    ldr r1, =arg0  @ place for arg0(command)
+    ldr r2, =arg1  @ place for arg1
+    mov r3, #0  @ flag: 0 for command, 1 for argument
 
-    pop {r4-r11, pc}
+    parseCommandLoop:
+        ldrb r4, [r0]   @ load the char
+        cmp r4, #0  @ check if hits '\0'
+        beq parseCommandEnd
+        cmp r4, #' '  @ check if hits ' '
+        beq parseSpace
+        cmp r3, #0  @ check state
+        bne loadArgs
+        strb r4, [r1]   @ store the char to command
+        add r1, r1, #1  @ increment
+        b parseCommandLoop
+
+    parseSpace:
+        cmp r3, #0  @ check state
+        bne inArg   @ if it's parsing arguments, then skip
+        @ else, update flag to 1
+        add r3, r3, #1
+        strb r4, [r1]   @ null terminated arg0(the command)
+        add r0, r0, #1  @ increment
+        b parseCommandLoop
+
+    loadArgs:
+        strb r4, [r2]   @ store the char
+        add r2, r2, #1  @ increment
+        b parseCommandLoop
+
+    inArg:
+        add r0, r0, #1  @ increment
+        b parseCommandLoop
+
+    parseCommandEnd:
+        strb r4, [r1]   @ null terminated arg0
+        strb r4, [r2]   @ null terminated arg1
+        pop {r4-r11, pc}
 
 
 .section .data
@@ -256,6 +301,26 @@ bufferUser:
     .space 128
 bufferStrcpy:
     .space 128
+bufferFilename:
+    .space 128
 
 binPath:
     .asciz "/usr/bin/"
+
+@ spaces for arguments
+arg0:
+    .space 128
+arg1:
+    .space 128
+
+@ pointers to arguments
+ptrarg0:
+    .word arg0
+ptrarg1:
+    .word arg1
+
+@ pointer to the pointers to arguments
+argv:
+    .word ptrarg0
+    .word ptrarg1
+    .word 0
