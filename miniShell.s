@@ -85,22 +85,24 @@ strcpy:
 @ Return the pointer to the source string
 strcat:
     push {r4-r11, lr}
-    mov r2, r0  @ load source string
-    mov r3, r1  @ load string to append
+    mov r4, r0  @ load source string
+    mov r5, r1  @ load string to append
     bl strlen
-    mov r4, r0  @ load length of the source string
-    add r2, r4  @ move pointer to the end of the source string
+    mov r6, r0  @ load length of the source string
+    add r4, r6  @ move pointer to the end of the source string
 
     strcatLoop:
-        ldrb r5, [r3]
-        strb r5, [r2]
-        cmp r5, #0
+        ldrb r6, [r5]
+        strb r6, [r4]
+        cmp r6, #0
         beq strcatEnd
-        add r2, r2, #1
-        add r3, r3, #1
-        b strcpyLoop
+        add r4, r4, #1
+        add r5, r5, #1
+        b strcatLoop
 
     strcatEnd:
+        ldr r0 =bufferUser
+        bl printf
         mov r0, r0  @ return pointer to source string
         pop {r4-r11, pc}
 
