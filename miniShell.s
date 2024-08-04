@@ -66,13 +66,19 @@ readUserInput:
     mov r7, #3  @ sys_read
     svc #0
 
-    @ add '\0' for null terminated
+    @ add '\0' for null terminated(replacing '\n' with '\0')
     @ move r1 to the end of the string(+1)
     add r1, r1, r0  @r0 store the return value of numbers of bytes read
     mov r2, #0
-    strb r2, [r1]
+    sub r3, r1, #1
+    cmp r3, #0xa    @ compare it with '\n'
+    bne endReadUserInput
+        strb r2, [r3]
+        pop {r4-r11, pc}
 
-    pop {r4-r11, pc}
+    endReadUserInput:
+        strb r2, [r1]
+        pop {r4-r11, pc}
 
 displayUserInput:
     push {r4-r11, lr}
