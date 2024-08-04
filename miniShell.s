@@ -69,7 +69,7 @@ readUserInput:
     @ move r1 to the end of the string(+1)
     add r1, r1, r0  @r0 store the return value of numbers of bytes read
     mov r2, #0
-    strb r1, [r2]
+    strb r2, [r1]
 
     pop {pc}
 
