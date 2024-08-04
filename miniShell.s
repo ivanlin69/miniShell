@@ -64,8 +64,8 @@ strlen:
 @ Return the pointer to the des string
 strcpy:
     push {r4-r11, lr}
-    ldr r2, r0  @ load source string
-    ldr r3, r1  @ load destination string
+    ldr r2, [r0]  @ load source string
+    ldr r3, [r1]  @ load destination string
 
     strcpyLoop:
         ldrb r4, [r2]
@@ -85,8 +85,8 @@ strcpy:
 @ Return the pointer to the source string
 strcat:
     push {r4-r11, lr}
-    ldr r2, r0  @ load source string
-    ldr r3, r1  @ load string to append
+    ldr r2, [r0]  @ load source string
+    ldr r3, [r1]  @ load string to append
     bl strlen
     mov r4, r0  @ load length of the source string
     add r2, r4  @ move pointer to the end of the source string
@@ -165,7 +165,7 @@ checkPath:
     push {r4-r11, lr}
     ldr r1, =bufferUser @ load string
     ldrb r2, [r1]   @ read first byte
-    cmp #'/'    @ check if already specified
+    cmp r2, #'/'    @ check if already specified
     beq endCheckPath
     ldr r0, =binPath
     bl addPath
