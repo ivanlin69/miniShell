@@ -59,13 +59,59 @@ strlen:
         pop {r4-r11, pc}
 
 
+@ Simulate C's strcpy function
+@ Take r0 as source string, r1 as destination string
+@ Return the pointer to the des string
+strcpy:
+    push {r4-r11, lr}
+    ldr r2, r0  @ load source string
+    ldr r3, r1  @ load destination string
+
+    strcpyLoop:
+        ldrb r4, [r2]
+        strb r4, [r3]
+        cmp r4, #0
+        beq strcpyEnd
+        add r2, r2, #1
+        add r3, r3, #1
+        b strcpyLoop
+
+    strcpyEnd:
+        mov r0, r3
+        pop {r4-r11, pc}
+
+@ Simulate C's strcat function
+@ Take r0 as source string, r1 as string to append
+@ Return the pointer to the source string
+strcat:
+    push {r4-r11, lr}
+    ldr r2, r0  @ load source string
+    ldr r3, r1  @ load string to append
+    bl strlen
+    mov r4, r0  @ load length of the source string
+    add r2, r4  @ move pointer to the end of the source string
+
+    strcatLoop:
+        ldrb r5, [r3]
+        strb r5, [r2]
+        cmp r5, #0
+        beq strcatEnd
+        add r2, r2, #1
+        add r3, r3, #1
+        b strcpyLoop
+
+    strcatEnd:
+        mov r0, r2
+        pop {r4-r11, pc}
+
+
 @ read user' s input by calling sys_read
 readUserInput:
     push {r4-r11, lr}
 
     @ read from stdin
     mov r0, #0  @ stdin fd
-    ldr r1, =buffer @ pointer to the buffer
+    ldr r1, =bufferUser @ pointer to the buffer
     mov r2, #127    @ maximum load size(1 additional space for '\0')
     mov r7, #3  @ sys_read
     svc #0
@@ -89,7 +135,7 @@ readUserInput:
 @ prints the user input in the terminal(new line added for readability)
 displayUserInput:
     push {r4-r11, lr}
-    ldr r0, =buffer
+    ldr r0, =bufferUser
     bl printf
     ldr r0, =newline
     bl printf
@@ -98,13 +144,14 @@ displayUserInput:
 @ handing commands with fork, child, parent and wait
 executeCommand:
     push {r4-r11, lr}
-    ldr r0, =buffer
+    ldr r0, =bufferUser
     @ parse the command for later execution
     bl parseCommand
 
     cmp r0, #-1  @ make sure the parse is done correctly
     beq endExecute
     @ else, fork the process
+    bl checkPath
     bl fork
     cmp r0, #0  @ fork returns 0 if a child process, pid a parent process
     beq child   @ if we're in child process, run child
@@ -112,6 +159,38 @@ executeCommand:
 
     endExecute:
         pop {r4-r11, pc}
+
+@ see if user specified a path, otherwise add '/usr/bin/ at the beginning
+checkPath:
+    push {r4-r11, lr}
+    ldr r1, =bufferUser @ load string
+    ldrb r2, [r1]   @ read first byte
+    cmp #'/'    @ check if already specified
+    beq endCheckPath
+    ldr r0, =binPath
+    bl addPath
+
+    endCheckPath:
+        pop {r4-r11, pc}
+
+@ add '/usr/bin/ at the beginning of the given string
+addPath:
+    push {r4-r11, lr}
+    @ copy string to another buffer
+    ldr r0, =bufferUser @ load string
+    ldr r1, =bufferStrcpy  @ for des string
+    bl strcpy   @ r0 = des string
+    @ copy bin path to user buffer
+    ldr r0, =binPath
+    ldr r1, =bufferUser
+    bl strcpy
+
+    @ append arguments to bufferUser
+    ldr r0, =bufferUser
+    ldr r1, =bufferStrcpy
+    bl strcat
+
+    pop {r4-r11, pc}
 
 
 @ call sys_fork for forking
@@ -126,9 +205,9 @@ fork:
 @ TODO::
 child:
     push {r4-r11, lr}
-    ldr r0, =buffer
+    ldr r0, =bufferUser
     mov r1, #0  @ place for argv
-    mov r2, #0  @ place for envp(environment pointer)
+    mov r2, #0  @ place for envp(environment pointer), hardcoded 0 for minimal usage
     mov r7, #0xb  @ sys_execve
     svc #0
 
@@ -158,7 +237,7 @@ parseCommand:
 
 
 .section .data
-@ Used by showPrompt()
+@ Used by showPrompt
 prompt:
     .asciz "$ " @ Null terminated string
 
@@ -166,5 +245,10 @@ newline:
     .asciz "\n" @ for printing a newline
 
 @ Used for reading user input, allocated with 128bytes
-buffer:
+bufferUser:
     .space 128
+bufferStrcpy:
+    .space 128
+
+binPath:
+    .asciz "/usr/bin/"
