@@ -48,7 +48,7 @@ _strlenLoop:
     add r2, r2, #1  @length++
     b _strlenLoop
 
-_strlenLoopEnd
+_strlenLoopEnd:
     mov r0, r2
     pop {pc}
 
