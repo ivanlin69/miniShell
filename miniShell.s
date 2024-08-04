@@ -21,7 +21,8 @@ showPrompt:
 @ Simulate C's printf function
 @ Take r0 as input
 printf:
-    push {lr} @ No use of volatile registers
+    @push {lr} @ No use of volatile registers
+    push {r4-r11, lr} @ fixed, make sure to follow arm convention
     mov r1, r0  @ Load input string
     bl strlen
     mov r2, r0  @ r2 = length of the given string
@@ -33,12 +34,12 @@ printf:
     mov r7, #4 @ sys_write
     svc #0
 
-    pop {pc}
+    pop {r4-r11, pc}
 
 @ Simulate C's strlen function
 @ Take r0 as input
 strlen:
-    push {lr}   @ No use of volatile registers
+    push {r4-r11, lr}
     mov r1, r0  @ Load input string
     mov r2, #0  @ Length
 
@@ -52,11 +53,11 @@ _strlenLoop:
 
 _strlenLoopEnd:
     mov r0, r2
-    pop {pc}
+    pop {r4-r11, pc}
 
 
 readUserInput:
-    push {lr} @ No use of volatile registers
+    push {r4-r11, lr}
 
     @ read from stdin
     mov r0, #0  @ stdin fd
@@ -71,15 +72,15 @@ readUserInput:
     mov r2, #0
     strb r2, [r1]
 
-    pop {pc}
+    pop {r4-r11, pc}
 
 displayUserInput:
-    push {lr} @ No use of volatile registers
+    push {r4-r11, lr}
     ldr r0, =buffer
     bl printf
     ldr r0, =newline
     bl printf
-    pop {pc}
+    pop {r4-r11, pc}
 
 .section .data
 @ Used by showPrompt()
