@@ -71,7 +71,8 @@ readUserInput:
     add r1, r1, r0  @r0 store the return value of numbers of bytes read
     mov r2, #0
     sub r3, r1, #1
-    cmp r3, #0xa    @ compare it with '\n'
+    ldrb r4, [r3]   @ note: we can't directly use cmp to compare value with registers
+    cmp r4, #0xa    @ compare it with '\n'
     bne endReadUserInput
         strb r2, [r3]
         pop {r4-r11, pc}
