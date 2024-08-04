@@ -8,6 +8,7 @@ main:
     bl showPrompt
     bl readUserInput
     bl displayUserInput
+    bl executeCommand
     b main  @Infinity loop
 
 @ Ask user to prompt with outputing "$ " on the display
@@ -87,6 +88,60 @@ displayUserInput:
     bl printf
     ldr r0, =newline
     bl printf
+    pop {r4-r11, pc}
+
+
+executeCommand:
+    push {r4-r11, lr}
+    ldr r0, =buffer
+    @ parse the command for later execution
+    bl parseCommand
+
+    cmp r0, #-1  @ make sure the parse is done correctly
+    beq endExecute
+    @ else
+    bl fork
+    cmp r0, #0  @ return 0 if a child process, pid a parent process
+    beq child   @ if we're in child process, run child
+    bl wait @ if we're in parent process, wait until child process ends
+
+    endExecute:
+        pop {r4-r11, pc}
+
+@TODO: parse the command
+@ returns 0 if parsed correctly
+parseCommand:
+    push {r4-r11, lr}
+    mov r0, r0 @ load the command
+
+    pop {r4-r11, pc}
+
+@ call sys_fork for forking
+fork:
+    push {r4-r11, lr}
+    mov r7, #2  @ sys_fork
+    svc #0
+    pop {r4-r11, pc}
+
+@ call sys_execve
+child:
+    push {r4-r11, lr}
+    ldr r0, =buffer
+    mov r1, #0
+    mov r2, #0  @ place for environment pointer
+    mov r7, #11  @ sys_execve
+    svc #0
+
+    @ only run if execve somehow failed
+    mov r7, #1
+    svc #0
+
+wait:
+    mov r7, #0x72   @ sys_wait(for arm linux kernel, sys_wait4)
+    mov r0, #-1 @ wait for any child
+    mov r1, #0  @ no options
+    mov r2, #0  @ no status
+    svc #0
     pop {r4-r11, pc}
 
 .section .data
