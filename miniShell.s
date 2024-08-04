@@ -63,7 +63,13 @@ readUserInput:
     ldr r1, =buffer @ pointer to the buffer
     mov r2, #128    @ maximum load size
     mov r7, #3  @ sys_read
-    sys #0
+    svc #0
+
+    @ add '\0' for null terminated
+    @ move r1 to the end of the string(+1)
+    add r1, r1, r0  @r0 store the return value of numbers of bytes read
+    mov r2, #0
+    strb r1, [r2]
 
     pop {pc}
 
