@@ -12,20 +12,21 @@ main:
     bl executeCommand
     b main  @Infinity loop
 
+
 @ Ask user to prompt with outputing "$ " on the display
 @ Addtional parameters are not needed
 showPrompt:
-    push {r4-r11, lr}
-    ldr r0, =prompt @"$ "
+    push {r4-r11, lr}   @ follow arm convention
+    ldr r4, =prompt @"$ "
     bl printf
     pop {r4-r11, pc} @ return
+
 
 @ Simulate C's printf function
 @ Take r0 as input(pointer to the string)
 printf:
-    @ push {lr} @ No use of volatile registers
-    push {r4-r11, lr} @ fixed, make sure to follow arm convention
-    mov r1, r0  @ Load input string tp r1
+    push {r4-r11, lr}
+    mov r1, r0  @ Load input string to r1
     bl strlen   @ get the length of the string
     mov r2, r0  @ r2 = length of the given string
 
@@ -38,25 +39,26 @@ printf:
 
     pop {r4-r11, pc}
 
+
 @ Simulate C's strlen function
-@ Take r0 as input
+@ Take r0 as input(pointer to the string)
 strlen:
     push {r4-r11, lr}
-    mov r1, r0  @ Load input string(pointer to the string)
-    mov r2, #0  @ Length
+    mov r4, r0  @ Load input string(pointer to the string)
+    mov r5, #0  @ Length
 
     @ iterate through the string
     strlenLoop:
-        ldrb r3, [r1, r2]   @ load the data in the address of r1 offset by r2
-        cmp r3, #0
+        ldrb r6, [r4, r5]   @ load the data in the address of r4 offset by r5
+        cmp r6, #0
         @ if == '\0'
         beq strlenLoopEnd
         @ else
-        add r2, r2, #1  @ length++
+        add r5, r5, #1  @ length++
         b strlenLoop
 
     strlenLoopEnd:
-        mov r0, r2  @ return length
+        mov r0, r5  @ return length, follow arm convention
         pop {r4-r11, pc}
 
 
