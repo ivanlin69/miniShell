@@ -17,7 +17,7 @@ main:
 @ Addtional parameters are not needed
 showPrompt:
     push {r4-r11, lr}   @ follow arm convention
-    ldr r4, =prompt @"$ "
+    ldr r0, =prompt @"$ "
     bl printf
     pop {r4-r11, pc} @ return
 
