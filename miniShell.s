@@ -285,8 +285,17 @@ parseCommand:
     parseCommandEnd:
         strb r4, [r1]   @ null terminated arg0
         strb r4, [r2]   @ null terminated arg1
-        mov r0, #0
-        pop {r4-r11, pc}
+        ldr r3, =argv
+        ldr r4, =arg0
+        str r4, [r3]
+        ldr r4, =arg1
+        cmp r4, #0
+        b skipArg1
+        str r4, [r3, #4]
+
+        skipArg1:
+            mov r0, #0
+            pop {r4-r11, pc}
 
 
 .section .data
@@ -317,5 +326,5 @@ arg1:
 @ pointer to the pointers to arguments
 argv:
     .word arg0
-    .word arg1
+    .word 0
     .word 0
