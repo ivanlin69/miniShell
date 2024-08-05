@@ -7,7 +7,7 @@ _start:
 main:
     bl showPrompt
     bl readUserInput
-    bl displayUserInput @ temporarily kept for testing
+    @ bl displayUserInput @ temporarily kept for testing
     bl executeCommand
     b main  @Infinity loop
 
@@ -149,23 +149,19 @@ executeCommand:
 
     @ parse the command for later execution
     bl parseCommand
+    cmp r0, #0  @ make sure the parse is done correctly
+    bne endExecute
 
-    @ test code for checking correct file path
+    @ test code for checking parsed result
     @ldr r0, =bufferUser
     @ldr r0, =bufferFilename
     @ldr r0, =arg0
     @ldr r0, =arg1
+    @bl printf
 
-    bl printf
-
+    @ prepend '/usr/bin/' to arg0
     bl checkPath
 
-    @ test code for checking correct file path
-    ldr r0, =bufferFilename
-    bl printf
-
-    cmp r0, #0  @ make sure the parse is done correctly
-    bne endExecute
     @ else, fork the process
     bl fork
     cmp r0, #0  @ fork returns 0 if a child process, pid a parent process
@@ -219,12 +215,14 @@ fork:
 child:
     push {r4-r11, lr}
     ldr r0, =bufferFilename
-    ldr r1, =argv  @ place for argv
+    @ TODO::
+    @ldr r1, =argv  @ place for argv
+    mov r1, #0  @ place for argv
     mov r2, #0  @ place for envp(environment pointer), hardcoded 0 for minimal usage
     mov r7, #0xb  @ sys_execve
     svc #0
 
-    @ only run if execve somehow fails
+    @ only run if execve fails
     mov r7, #1  @ sys_exit
     svc #0
 
@@ -269,6 +267,7 @@ parseCommand:
         bne inArg   @ if it's parsing arguments, then skip
         @ else, update flag to 1
         add r3, r3, #1
+        mov r4, #0
         strb r4, [r1]   @ null terminated arg0(the command)
         add r0, r0, #1  @ increment
         add r1, r1, #1  @ increment
