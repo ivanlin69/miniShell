@@ -67,21 +67,22 @@ strlen:
 @ Return the pointer to the des string
 strcpy:
     push {r4-r11, lr}
-    mov r2, r0  @ load source string
-    mov r3, r1  @ load destination string
+    mov r4, r0  @ load source string
+    mov r5, r1  @ load destination string
 
     strcpyLoop:
-        ldrb r4, [r2]
-        strb r4, [r3]
-        cmp r4, #0
+        ldrb r6, [r4]
+        strb r6, [r5]
+        cmp r6, #0
         beq strcpyEnd
-        add r2, r2, #1
-        add r3, r3, #1
+        add r4, r4, #1
+        add r5, r5, #1
         b strcpyLoop
 
     strcpyEnd:
         mov r0, r1  @ return pointer to des string
         pop {r4-r11, pc}
+
 
 @ Simulate C's strcat function
 @ Take r0 as source string, r1 as string to append
@@ -109,6 +110,8 @@ strcat:
 
 
 @ read user' s input by calling sys_read
+@ bufferUser will be updated
+@ Addtional parameters are not needed
 readUserInput:
     push {r4-r11, lr}
 
@@ -146,6 +149,7 @@ displayUserInput:
 
 
 @ handing commands with fork, child, parent and wait
+@ Addtional parameters are not needed
 executeCommand:
     push {r4-r11, lr}
     ldr r0, =bufferUser
@@ -176,13 +180,14 @@ executeCommand:
 
 
 @ see if user specified a path, otherwise add '/usr/bin/ at the beginning
+@ can be extend for advanced parsing in the future
+@ Addtional parameters are not needed
 checkPath:
     push {r4-r11, lr}
-    ldr r1, =arg0 @ load string
+    ldr r1, =arg0   @ load string
     ldrb r2, [r1]   @ read first byte
     cmp r2, #'/'    @ check if already specified
     beq endCheckPath
-    ldr r0, =binPath
     bl addPath
 
     endCheckPath:
@@ -190,6 +195,7 @@ checkPath:
 
 
 @ add '/usr/bin/ at the beginning of the given string
+@ Addtional parameters are not needed
 addPath:
     push {r4-r11, lr}
     @ copy bin path to buffer filename
