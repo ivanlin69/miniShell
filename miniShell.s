@@ -8,6 +8,7 @@ main:
     bl showPrompt
     bl readUserInput
     @ bl displayUserInput @ temporarily kept for testing
+    bl clearArgs
     bl executeCommand
     b main  @Infinity loop
 
@@ -300,6 +301,14 @@ parseCommand:
         skipArg1:
             mov r0, #0
             pop {r4-r11, pc}
+
+@ clear args before usage(arg1)
+clearArgs:
+    push {r4-r11, lr}
+    ldr r0, =argv
+    mov r1, #0
+    str r1, [r0, #4]  @ clear arg1
+    pop {r4-r11, pc}
 
 
 .section .data
