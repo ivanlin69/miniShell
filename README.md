@@ -9,28 +9,30 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
 
 ## Features
 
-**Command Parsing**: Parses user input to extract commands and arguments.
-
-**Fork and Exec**: Uses fork to create child processes and execve to execute commands.
-
-**Wait for Completion**: Parent process waits for child processes to complete before accepting new commands.
-
-**Memory Management**: Clears argument buffers before parsing new commands to prevent data corruption.
+- **Command Parsing**: Parses user input to extract commands and arguments.
+- **Fork and Exec**: Uses fork to create child processes and execve to execute commands.
+- **Wait for Completion**: Parent process waits for child processes to complete before accepting new commands.
+- **Memory Management**: Clears argument buffers before parsing new commands to prevent data corruption.
 
   
 ## Usage
 
 ### For Non ARM Native
 
-1. **Install the Required Tools**
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/ivanlin69/miniShell.git
+   cd miniShell
+   ```
+2. **Install the Required Tools**
    ```bash
    sudo apt install build-essential gcc-arm-linux-gnueabihf qemu-user
    ```
-2. **Compile the Program**
+3. **Compile the Program**
    ```bash
    arm-linux-gnueabihf-gcc -o miniShell miniShell.s -static -nonstdlib
    ```
-3. **Run the Program**
+4. **Run the Program**
    ```bash
    qemu-arm ./miniShell.s
    ```
