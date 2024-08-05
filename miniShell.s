@@ -285,13 +285,17 @@ parseCommand:
     parseCommandEnd:
         strb r4, [r1]   @ null terminated arg0
         strb r4, [r2]   @ null terminated arg1
+        @ Reload the pointers
         ldr r3, =argv
         ldr r4, =arg0
-        str r4, [r3]
+        str r4, [r3]    @ assign index 0 the pointer to arg0(command)
         ldr r4, =arg1
+        @ check if arg1 is empty
+        ldrb r5, [r4]
         cmp r4, #0
-        b skipArg1
-        str r4, [r3, #4]
+        @ if is empty, we skip it
+        beq skipArg1
+        str r4, [r3, #4]    @ assign index 1 the pointer to arg1(argument)
 
         skipArg1:
             mov r0, #0
