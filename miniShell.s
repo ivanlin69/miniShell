@@ -292,7 +292,7 @@ parseCommand:
         ldr r4, =arg1
         @ check if arg1 is empty
         ldrb r5, [r4]
-        cmp r4, #0
+        cmp r5, #0
         @ if is empty, we skip it
         beq skipArg1
         str r4, [r3, #4]    @ assign index 1 the pointer to arg1(argument)
