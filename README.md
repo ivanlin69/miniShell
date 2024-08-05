@@ -1,7 +1,7 @@
 # Mini Shell for ARM 32-bit Architecture
 
 ## Description
-This is a simple shell program for `ARM 32-bit` architecture, written in `assembly` language. The shell reads user input, parses commands and arguments, forks child processes to execute commands using execve, and waits for the child processes to complete.
+This is a simple shell program for `ARM 32-bit` architecture, written in `ARM assembly` language. The shell reads user input, parses commands and arguments, forks child processes to execute commands using execve, and waits for the child processes to complete.
 
 
 ## Features
