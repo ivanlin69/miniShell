@@ -184,9 +184,9 @@ executeCommand:
 @ Addtional parameters are not needed
 checkPath:
     push {r4-r11, lr}
-    ldr r1, =arg0   @ load string
-    ldrb r2, [r1]   @ read first byte
-    cmp r2, #'/'    @ check if already specified
+    ldr r4, =arg0   @ load string
+    ldrb r5, [r4]   @ read first byte
+    cmp r5, #'/'    @ check if already specified
     beq endCheckPath
     bl addPath
 
@@ -199,19 +199,20 @@ checkPath:
 addPath:
     push {r4-r11, lr}
     @ copy bin path to buffer filename
-    ldr r0, =binPath
-    ldr r1, =bufferFilename
+    ldr r4, =binPath
+    ldr r5, =bufferFilename
     bl strcpy
 
     @ append arguments to buffer filename
-    ldr r0, =bufferFilename
-    ldr r1, =arg0
+    ldr r4, =bufferFilename
+    ldr r5, =arg0
     bl strcat
 
     pop {r4-r11, pc}
 
 
 @ call sys_fork for forking
+@ Addtional parameters are not needed
 fork:
     push {r4-r11, lr}
     mov r7, #2  @ sys_fork
@@ -313,9 +314,9 @@ parseCommand:
 @ clear args before usage(arg1)
 clearArgs:
     push {r4-r11, lr}
-    ldr r0, =argv
-    mov r1, #0
-    str r1, [r0, #4]  @ clear arg1
+    ldr r4, =argv
+    mov r5, #0
+    str r5, [r4, #4]  @ clear arg1
     pop {r4-r11, pc}
 
 
@@ -338,7 +339,8 @@ bufferFilename:
 binPath:
     .asciz "/usr/bin/"
 
-@ spaces for arguments
+@ spaces for arguments, used for parsing arguments
+@ current specs for allowing only 0/1 arguments
 arg0:
     .space 128
 arg1:
