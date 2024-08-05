@@ -215,9 +215,8 @@ fork:
 child:
     push {r4-r11, lr}
     ldr r0, =bufferFilename
-    @ TODO::
-    @ldr r1, =argv  @ place for argv
-    mov r1, #0  @ place for argv
+    ldr r1, =argv  @ place for argv
+    @ mov r1, #0  @ place for argv, for no argument usage
     mov r2, #0  @ place for envp(environment pointer), hardcoded 0 for minimal usage
     mov r7, #0xb  @ sys_execve
     svc #0
@@ -315,14 +314,8 @@ arg0:
 arg1:
     .space 128
 
-@ pointers to arguments
-ptrarg0:
-    .word arg0
-ptrarg1:
-    .word arg1
-
 @ pointer to the pointers to arguments
 argv:
-    .word ptrarg0
-    .word ptrarg1
+    .word arg0
+    .word arg1
     .word 0
