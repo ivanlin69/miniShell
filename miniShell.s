@@ -153,7 +153,7 @@ executeCommand:
     @ test code for checking correct file path
     @ldr r0, =bufferUser
     @ldr r0, =bufferFilename
-    ldr r0, =arg0
+    @ldr r0, =arg0
     @ldr r0, =arg1
 
     bl printf
@@ -179,7 +179,7 @@ executeCommand:
 @ see if user specified a path, otherwise add '/usr/bin/ at the beginning
 checkPath:
     push {r4-r11, lr}
-    ldr r1, =bufferFilename @ load string
+    ldr r1, =arg0 @ load string
     ldrb r2, [r1]   @ read first byte
     cmp r2, #'/'    @ check if already specified
     beq endCheckPath
@@ -193,18 +193,14 @@ checkPath:
 @ add '/usr/bin/ at the beginning of the given string
 addPath:
     push {r4-r11, lr}
-    @ copy string to another buffer
-    ldr r0, =bufferFilename @ load string
-    ldr r1, =bufferStrcpy  @ for des string
-    bl strcpy   @ r0 = des string
-    @ copy bin path to user buffer
+    @ copy bin path to buffer filename
     ldr r0, =binPath
     ldr r1, =bufferFilename
     bl strcpy
 
-    @ append arguments to bufferUser
+    @ append arguments to buffer filename
     ldr r0, =bufferFilename
-    ldr r1, =bufferStrcpy
+    ldr r1, =arg0
     bl strcat
 
     pop {r4-r11, pc}
