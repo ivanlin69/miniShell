@@ -150,6 +150,14 @@ executeCommand:
     @ parse the command for later execution
     bl parseCommand
 
+    @ test code for checking correct file path
+    @ldr r0, =bufferUser
+    @ldr r0, =bufferFilename
+    ldr r0, =arg0
+    @ldr r0, =arg1
+
+    bl printf
+
     bl checkPath
 
     @ test code for checking correct file path
@@ -215,7 +223,7 @@ fork:
 child:
     push {r4-r11, lr}
     ldr r0, =bufferFilename
-    mov r1, argv  @ place for argv
+    ldr r1, =argv  @ place for argv
     mov r2, #0  @ place for envp(environment pointer), hardcoded 0 for minimal usage
     mov r7, #0xb  @ sys_execve
     svc #0
@@ -256,6 +264,7 @@ parseCommand:
         cmp r3, #0  @ check state
         bne loadArgs
         strb r4, [r1]   @ store the char to command
+        add r0, r0, #1  @ increment
         add r1, r1, #1  @ increment
         b parseCommandLoop
 
@@ -266,10 +275,12 @@ parseCommand:
         add r3, r3, #1
         strb r4, [r1]   @ null terminated arg0(the command)
         add r0, r0, #1  @ increment
+        add r1, r1, #1  @ increment
         b parseCommandLoop
 
     loadArgs:
         strb r4, [r2]   @ store the char
+        add r0, r0, #1  @ increment
         add r2, r2, #1  @ increment
         b parseCommandLoop
 
