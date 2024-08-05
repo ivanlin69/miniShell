@@ -199,13 +199,15 @@ checkPath:
 addPath:
     push {r4-r11, lr}
     @ copy bin path to buffer filename
-    ldr r4, =binPath
-    ldr r5, =bufferFilename
+    @ load parameters, r0: src, r1:dst
+    ldr r0, =binPath
+    ldr r1, =bufferFilename
     bl strcpy
 
     @ append arguments to buffer filename
-    ldr r4, =bufferFilename
-    ldr r5, =arg0
+    @ load parameters, r0: src, r1:str for cat
+    ldr r0, =bufferFilename
+    ldr r1, =arg0
     bl strcat
 
     pop {r4-r11, pc}
