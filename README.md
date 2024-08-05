@@ -54,7 +54,7 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
    ```
 
 ## Notice
-For current version, the shell only supports commands with up to one argument.
+For current version, the shell only supports commands with up to single argument.
 
 ## Contributing
 Contributions to the system are welcome! Please fork the repository and submit a pull request with your enhancements.
