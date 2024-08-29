@@ -109,6 +109,31 @@ strcat:
         pop {r4-r11, pc}
 
 
+@ Simulate C's strcmp function
+@ Take r0 as first string, r1 as second string
+strcmp:
+    push {r4-r11, lr}
+    strcmpLoop:
+        ldrb r2, [r0]
+        ldrb r3, [r1]
+        cmp r2, r3
+        bne strcmpNotEqual
+        add r2, r2, #1
+        add r3, r3, #1
+        cmp r2, #0  @check if the string ends
+        beq strcmpEqual
+        b strcmpLoop
+
+    strcmpNotEqual:
+        mov r0, #1
+        pop {r4-r11, pc}
+
+    strcmpEqual:
+        mov r0, #0
+        pop {r4-r11, pc}
+
+
+
 @ read user' s input by calling sys_read
 @ bufferUser will be updated
 @ Addtional parameters are not needed
@@ -166,6 +191,16 @@ executeCommand:
     @ldr r0, =arg1
     @bl printf
 
+    @ check if command is 'cd'
+    ldr r0, =arg0
+    ldr r1, =cdCommand
+    bl strcmp
+    @ if true, handle cd command separately
+    cmp r0, #0
+    bne notCdCommand
+    bl cd
+    b endExecute
+
     @ prepend '/usr/bin/' to arg0
     bl checkPath
 
@@ -218,6 +253,15 @@ addPath:
 fork:
     push {r4-r11, lr}
     mov r7, #2  @ sys_fork
+    svc #0
+    pop {r4-r11, pc}
+
+
+@ call sys_chdir for changing directory
+cd:
+    push {r4-r11, lr}
+    ldr r0, =arg1   @ r0 for storing the file directory, which is arg1 in our case
+    mov r7, #12  @ sys_chdir
     svc #0
     pop {r4-r11, pc}
 
@@ -337,6 +381,10 @@ bufferStrcpy:
     .space 128
 bufferFilename:
     .space 128
+
+@ Used for handling command 'cd'
+cdCommand:
+    .asciz "cd"
 
 binPath:
     .asciz "/usr/bin/"
