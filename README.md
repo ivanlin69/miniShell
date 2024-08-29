@@ -32,7 +32,9 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
    ```bash
    arm-linux-gnueabihf-gcc -o miniShell miniShell.s -static -nostdlib
    ```
-4. **Run the Program**
+   *Note*: You can add '-g' flag to ensure that GDB can load the source files and debug symbols.
+   
+5. **Run the Program**
    ```bash
    qemu-arm ./miniShell
    ```
