@@ -201,6 +201,7 @@ executeCommand:
     bl cd
     b endExecute
 
+notCdCommand:
     @ prepend '/usr/bin/' to arg0
     bl checkPath
 
