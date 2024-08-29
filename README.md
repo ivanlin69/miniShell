@@ -34,7 +34,7 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
    ```
 4. **Run the Program**
    ```bash
-   qemu-arm ./miniShell.s
+   qemu-arm ./miniShell
    ```
 
    
@@ -50,7 +50,7 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
    ```
 3. **Run the Program**
    ```bash
-   ./miniShell.s
+   ./miniShell
    ```
 
 ## Notice
