@@ -30,7 +30,7 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
    ```
 3. **Compile the Program**
    ```bash
-   arm-linux-gnueabihf-gcc -o miniShell miniShell.s -static -nonstdlib
+   arm-linux-gnueabihf-gcc -o miniShell miniShell.s -static -nostdlib
    ```
 4. **Run the Program**
    ```bash
@@ -46,7 +46,7 @@ The system calls used in this program(arm-32 bit EABI) follow the standards of [
    ```
 2. **Compile the Program**
    ```bash
-   gcc -o miniShell miniShell.s -static -nonstdlib
+   gcc -o miniShell miniShell.s -static -nostdlib
    ```
 3. **Run the Program**
    ```bash
