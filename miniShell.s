@@ -118,8 +118,8 @@ strcmp:
         ldrb r3, [r1]
         cmp r2, r3
         bne strcmpNotEqual
-        add r2, r2, #1
-        add r3, r3, #1
+        add r0, r0, #1
+        add r1, r1, #1
         cmp r2, #0  @check if the string ends
         beq strcmpEqual
         b strcmpLoop
