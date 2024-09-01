@@ -289,8 +289,9 @@ wait:
     mov r7, #0x72   @ sys_wait(for arm linux kernel, sys_wait4)
     @ wait for any child for any status
     mov r0, #-1
-    mov r1, #0  @ no options
-    mov r2, #0  @ no status
+    mov r1, #0     @ no status (NULL)
+    mov r2, #0     @ no options
+    mov r3, #0     @ no rusage (NULL)
 
     svc #0
     pop {r4-r11, pc}
